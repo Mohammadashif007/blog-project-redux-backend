@@ -8,7 +8,7 @@ const Blog = ({ blog }) => {
             <p>Author: {author}</p>
             <p>Date: {date}</p>
             <div>
-                {tags.map((tag, index) => (
+                {tags?.map((tag, index) => (
                     <span
                         key={index}
                         className="bg-blue-100 text-blue-800 px-2 py-1 rounded-xl text-sm mx-2"
