@@ -22,6 +22,10 @@ function App() {
         fetchData();
     }, []);
 
+    const handleDeleteSuccessfully = (id: string) => {
+        setBlogs((prev) => prev.filter((blog) => blog._id !== id));
+    }
+
     return (
         <div>
             <div className="mb-5 ">
@@ -32,7 +36,7 @@ function App() {
             ) : (
                 <div className="grid grid-cols-3 gap-3">
                     {blogs.map((b) => (
-                        <Blog key={b._id} blog={b}></Blog>
+                        <Blog key={b._id} blog={b} onDeleteSuccess={handleDeleteSuccessfully}></Blog>
                     ))}
                 </div>
             )}

@@ -62,12 +62,13 @@ export function BlogModal() {
             console.error(error);
         }
         setLoading(false);
+        form.reset()
     };
     return (
         <Dialog>
             <form>
                 <DialogTrigger asChild>
-                    <Button variant="outline">Open Dialog</Button>
+                    <Button variant="outline" className="cursor-pointer">Open Dialog</Button>
                 </DialogTrigger>
                 <DialogContent className="sm:max-w-[425px]">
                     <DialogHeader>
