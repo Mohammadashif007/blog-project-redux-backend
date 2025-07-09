@@ -1,16 +1,16 @@
 // import { useEffect, useState } from "react";
 import "./App.css";
-import { BlogModal } from "./components/blogModal";
-import Blog from "./pages/blog/blog";
-import { useGetPostsQuery } from "./redux/api/blogApi";
-
+import Table from "./pages/Table/Table";
+// import { BlogModal } from "./components/blogModal";
+// import Blog from "./pages/blog/blog";
+// import { useGetPostsQuery } from "./redux/api/blogApi";
 
 function App() {
     // const [blogs, setBlogs] = useState([]);
     // const [loading, setLoading] = useState(false);
-    const {data, isLoading} = useGetPostsQuery(undefined);
-    console.log(data);
-    const blogs = data?.data;
+    // const {data, isLoading} = useGetPostsQuery(undefined);
+    // console.log(data);
+    // const blogs = data?.data;
     // const blogs: TBlog[] = data?.data || [];
     // useEffect(() => {
     //     const fetchData = async () => {
@@ -33,7 +33,7 @@ function App() {
 
     return (
         <div>
-            <div className="mb-5 ">
+            {/* <div className="mb-5 ">
                 <BlogModal></BlogModal>
                
             </div>
@@ -49,7 +49,8 @@ function App() {
                         ></Blog>
                     ))}
                 </div>
-            )}
+            )} */}
+            <Table></Table>
         </div>
     );
 }
