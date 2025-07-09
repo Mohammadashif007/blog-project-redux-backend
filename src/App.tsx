@@ -3,6 +3,7 @@ import "./App.css";
 import { BlogModal } from "./components/blogModal";
 import Blog from "./pages/blog/blog";
 
+
 function App() {
     const [blogs, setBlogs] = useState([]);
     const [loading, setLoading] = useState(false);
@@ -24,19 +25,24 @@ function App() {
 
     const handleDeleteSuccessfully = (id: string) => {
         setBlogs((prev) => prev.filter((blog) => blog._id !== id));
-    }
+    };
 
     return (
         <div>
             <div className="mb-5 ">
                 <BlogModal></BlogModal>
+               
             </div>
             {loading ? (
                 <p className="m-auto">Loading...</p>
             ) : (
                 <div className="grid grid-cols-3 gap-3">
                     {blogs.map((b) => (
-                        <Blog key={b._id} blog={b} onDeleteSuccess={handleDeleteSuccessfully}></Blog>
+                        <Blog
+                            key={b._id}
+                            blog={b}
+                            onDeleteSuccess={handleDeleteSuccessfully}
+                        ></Blog>
                     ))}
                 </div>
             )}

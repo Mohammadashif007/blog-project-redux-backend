@@ -1,3 +1,4 @@
+import { EditBlogModal } from "@/components/editBlogModal";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 
@@ -19,6 +20,8 @@ const Blog = ({
 }) => {
     const [loading, setLoading] = useState(false);
     const { _id, author, content, date, tags, title } = blog;
+
+    // ! handle delete blog
     const handleDelete = async (id: string) => {
         const confirmDelete = confirm(
             "Are you sure you want to delete this post?"
@@ -33,7 +36,7 @@ const Blog = ({
             );
             if (res.ok) {
                 console.log("Deleted successfully");
-                onDeleteSuccess?.(id)
+                onDeleteSuccess?.(id);
             } else {
                 console.error("Failed to delete:", res.text());
             }
@@ -42,6 +45,9 @@ const Blog = ({
         }
         setLoading(false);
     };
+
+    // ! handle edit blog
+
 
     return (
         <div className="border-1 rounded-2xl p-5 flex flex-col gap-3 justify-center items-center">
@@ -59,12 +65,16 @@ const Blog = ({
                     </span>
                 ))}
             </div>
-            <Button
-                className="m-auto my-2 cursor-pointer"
-                onClick={() => handleDelete(_id)}
-            >
-                {loading ? "Deleting..." : "Delete"}
-            </Button>
+            <div className="flex justify-between items-center gap-3">
+                <Button
+                    className="m-auto my-2 cursor-pointer"
+                    onClick={() => handleDelete(_id)}
+                >
+                    {loading ? "Deleting..." : "Delete"}
+                </Button>
+                <EditBlogModal id={_id}></EditBlogModal>
+
+            </div>
         </div>
     );
 };

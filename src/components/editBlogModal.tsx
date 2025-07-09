@@ -11,89 +11,72 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel } from "./ui/form";
+import { useForm } from "react-hook-form";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 import { Calendar } from "./ui/calendar";
-import { useForm } from "react-hook-form";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
-type FieldValues = {
+type TFieldValues = {
     title: string;
-    content: string;
     author: string;
     dueDate: Date | undefined;
+    content: string;
     tag: string;
 };
 
-export function BlogModal() {
+export function EditBlogModal({ id }: { id: string }) {
+    const form = useForm();
+    const [post, setPost] = useState({});
     const [loading, setLoading] = useState(false);
-    const form = useForm<FieldValues>({
-        defaultValues: {
-            title: "",
-            content: "",
-            author: "",
-            dueDate: undefined,
-            tag: "",
-        },
-    });
-    const onSubmit = async (data: FieldValues) => {
-        setLoading(true);
-        const payload = {
-            title: data.title,
-            content: data.content,
-            author: data.author,
-            date: data.dueDate?.toISOString() || new Date().toISOString(),
-            tags: data.tag ? [data.tag] : [],
-        };
+    console.log(post);
 
-        try {
-            const res = await fetch("http://localhost:3000/api/v1/posts", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(payload),
+    useEffect(() => {
+        setLoading(true);
+        const getPostData = async () => {
+            const res = await fetch(`http://localhost:3000/api/v1/posts/${id}`);
+            const data = await res.json();
+            const post = data.data;
+
+            // ! set the form value
+            form.reset({
+                title: post.title,
+                author: post.author,
+                dueDate: post.dueDate ? new Date(post.dueDate) : undefined,
+                content: post.content,
+                tag: post.tags?.[0] || "",
             });
-            const result = await res.json();
-            console.log("create post", result);
-        } catch (error) {
-            console.error(error);
-        }
-        setLoading(false);
-        form.reset();
-    };
+            setPost(post);
+            setLoading(false);
+        };
+        getPostData();
+    }, [id, form]);
+
     return (
         <Dialog>
-            <DialogTrigger asChild>
-                <Button variant="outline" className="cursor-pointer">
-                    Open Dialog
-                </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px]">
-                <DialogHeader>
-                    <DialogTitle>Edit profile</DialogTitle>
-                    <DialogDescription>
-                        Make changes to your profile here. Click save when
-                        you&apos;re done.
-                    </DialogDescription>
-                </DialogHeader>
-                <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)}>
-                        {/* Title */}
+            <form>
+                <DialogTrigger asChild>
+                    <Button variant="outline">Edit Post</Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-[425px]">
+                    <DialogHeader>
+                        <DialogTitle>Edit profile</DialogTitle>
+                        <DialogDescription>
+                            Make changes to your profile here. Click save when
+                            you&apos;re done.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <Form {...form}>
                         <FormField
                             control={form.control}
                             name="title"
-                            rules={{ required: "Title is required" }}
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Title</FormLabel>
                                     <FormControl>
-                                        <Input
-                                            {...field}
-                                            placeholder="Blog title"
-                                        />
+                                        <Input {...field}></Input>
                                     </FormControl>
                                 </FormItem>
                             )}
@@ -101,15 +84,11 @@ export function BlogModal() {
                         <FormField
                             control={form.control}
                             name="content"
-                            rules={{ required: "Content is required" }}
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Content</FormLabel>
                                     <FormControl>
-                                        <Input
-                                            {...field}
-                                            value={field.value || ""}
-                                        ></Input>
+                                        <Input {...field}></Input>
                                     </FormControl>
                                 </FormItem>
                             )}
@@ -117,15 +96,11 @@ export function BlogModal() {
                         <FormField
                             control={form.control}
                             name="author"
-                            rules={{ required: "Author is required" }}
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Author</FormLabel>
                                     <FormControl>
-                                        <Input
-                                            {...field}
-                                            value={field.value || ""}
-                                        ></Input>
+                                        <Input {...field}></Input>
                                     </FormControl>
                                 </FormItem>
                             )}
@@ -133,7 +108,6 @@ export function BlogModal() {
                         <FormField
                             control={form.control}
                             name="dueDate"
-                            rules={{ required: "DueDate is required" }}
                             render={({ field }) => (
                                 <FormItem className="flex flex-col">
                                     <FormLabel>Due Date</FormLabel>
@@ -178,19 +152,16 @@ export function BlogModal() {
                         <FormField
                             control={form.control}
                             name="tag"
-                            rules={{ required: "Tag is required" }}
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Tag</FormLabel>
+                                    <FormLabel>Tags</FormLabel>
                                     <FormControl>
-                                        <Input
-                                            {...field}
-                                            value={field.value || ""}
-                                        ></Input>
+                                        <Input {...field}></Input>
                                     </FormControl>
                                 </FormItem>
                             )}
                         />
+
                         <DialogFooter>
                             <DialogClose asChild>
                                 <Button variant="outline">Cancel</Button>
@@ -199,9 +170,9 @@ export function BlogModal() {
                                 {loading ? "Saving..." : "Save"}
                             </Button>
                         </DialogFooter>
-                    </form>
-                </Form>
-            </DialogContent>
+                    </Form>
+                </DialogContent>
+            </form>
         </Dialog>
     );
 }
