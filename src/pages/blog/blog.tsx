@@ -1,6 +1,8 @@
 import { EditBlogModal } from "@/components/editBlogModal";
 import { Button } from "@/components/ui/button";
+import { format } from "date-fns";
 import { useState } from "react";
+import { toZonedTime } from "date-fns-tz";
 
 type TBlog = {
     _id: string;
@@ -13,10 +15,10 @@ type TBlog = {
 
 const Blog = ({
     blog,
-    onDeleteSuccess,
-}: {
+}: // onDeleteSuccess,
+{
     blog: TBlog;
-    onDeleteSuccess?: (id: string) => void;
+    // onDeleteSuccess?: (id: string) => void;
 }) => {
     const [loading, setLoading] = useState(false);
     const { _id, author, content, date, tags, title } = blog;
@@ -36,7 +38,7 @@ const Blog = ({
             );
             if (res.ok) {
                 console.log("Deleted successfully");
-                onDeleteSuccess?.(id);
+                // onDeleteSuccess?.(id);
             } else {
                 console.error("Failed to delete:", res.text());
             }
@@ -46,8 +48,7 @@ const Blog = ({
         setLoading(false);
     };
 
-    // ! handle edit blog
-
+   
 
     return (
         <div className="border-1 rounded-2xl p-5 flex flex-col gap-3 justify-center items-center">
@@ -73,7 +74,6 @@ const Blog = ({
                     {loading ? "Deleting..." : "Delete"}
                 </Button>
                 <EditBlogModal id={_id}></EditBlogModal>
-
             </div>
         </div>
     );

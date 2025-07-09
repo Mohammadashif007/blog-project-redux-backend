@@ -28,47 +28,90 @@ type TFieldValues = {
 };
 
 export function EditBlogModal({ id }: { id: string }) {
-    const form = useForm();
-    const [post, setPost] = useState({});
+    const form = useForm<TFieldValues>({
+        defaultValues: {
+            title: "",
+            author: "",
+            dueDate: undefined,
+            content: "",
+            tag: "",
+        },
+    });
     const [loading, setLoading] = useState(false);
-    console.log(post);
 
     useEffect(() => {
-        setLoading(true);
         const getPostData = async () => {
-            const res = await fetch(`http://localhost:3000/api/v1/posts/${id}`);
-            const data = await res.json();
-            const post = data.data;
+            setLoading(true);
+            try {
+                const res = await fetch(
+                    `http://localhost:3000/api/v1/posts/${id}`
+                );
+                const data = await res.json();
+                const post = data.data;
 
-            // ! set the form value
-            form.reset({
-                title: post.title,
-                author: post.author,
-                dueDate: post.dueDate ? new Date(post.dueDate) : undefined,
-                content: post.content,
-                tag: post.tags?.[0] || "",
-            });
-            setPost(post);
+                // ! set the form value
+                form.reset({
+                    title: post.title,
+                    author: post.author,
+                    date: post.dueDate
+                        ? format(post.dueDate, "dd-MM-yyyy")
+                        : format(new Date(), "dd-MM-yyyy"),
+                    content: post.content,
+                    tag: post.tags?.[0] || "",
+                });
+            } catch (error) {
+                console.error(error);
+            }
             setLoading(false);
         };
         getPostData();
     }, [id, form]);
 
+    const onSubmit = async (data: TFieldValues) => {
+        const newDate = data.dueDate
+            ? format(data.dueDate, "dd-MM-yyyy")
+            : format(new Date(), "dd-MM-yyyy");
+        setLoading(true);
+        const payload = {
+            ...data,
+            date: newDate,
+            tags: data.tag ? [data.tag] : [],
+        };
+
+        try {
+            const res = await fetch(
+                `http://localhost:3000/api/v1/posts/${id}`,
+                {
+                    method: "PATCH",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(payload),
+                }
+            );
+            const result = await res.json();
+            console.log("Updated result", result);
+        } catch (error) {
+            console.error(error);
+        }
+        setLoading(false);
+    };
+
     return (
         <Dialog>
-            <form>
-                <DialogTrigger asChild>
-                    <Button variant="outline">Edit Post</Button>
-                </DialogTrigger>
-                <DialogContent className="sm:max-w-[425px]">
-                    <DialogHeader>
-                        <DialogTitle>Edit profile</DialogTitle>
-                        <DialogDescription>
-                            Make changes to your profile here. Click save when
-                            you&apos;re done.
-                        </DialogDescription>
-                    </DialogHeader>
-                    <Form {...form}>
+            <DialogTrigger asChild>
+                <Button variant="outline">Edit Post</Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[425px]">
+                <DialogHeader>
+                    <DialogTitle>Edit profile</DialogTitle>
+                    <DialogDescription>
+                        Make changes to your profile here. Click save when
+                        you&apos;re done.
+                    </DialogDescription>
+                </DialogHeader>
+                <Form {...form}>
+                    <form onSubmit={form.handleSubmit(onSubmit)}>
                         <FormField
                             control={form.control}
                             name="title"
@@ -105,6 +148,50 @@ export function EditBlogModal({ id }: { id: string }) {
                                 </FormItem>
                             )}
                         />
+                        {/* <FormField
+                            control={form.control}
+                            name="dueDate"
+                            render={({ field }) => (
+                                <FormItem className="flex flex-col">
+                                    <FormLabel>Due Date</FormLabel>
+                                    <Popover>
+                                        <PopoverTrigger asChild>
+                                            <FormControl>
+                                                <Button
+                                                    variant={"outline"}
+                                                    className={cn(
+                                                        "w-[240px] pl-3 text-left font-normal",
+                                                        !field.value &&
+                                                            "text-muted-foreground"
+                                                    )}
+                                                >
+                                                    {field.value ? (
+                                                        format(
+                                                            field.value,
+                                                            "PPP"
+                                                        )
+                                                    ) : (
+                                                        <span>Pick a date</span>
+                                                    )}
+                                                    <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                                </Button>
+                                            </FormControl>
+                                        </PopoverTrigger>
+                                        <PopoverContent
+                                            className="w-auto p-0"
+                                            align="start"
+                                        >
+                                            <Calendar
+                                                mode="single"
+                                                selected={field.value}
+                                                onSelect={field.onChange}
+                                                captionLayout="dropdown"
+                                            />
+                                        </PopoverContent>
+                                    </Popover>
+                                </FormItem>
+                            )}
+                        /> */}
                         <FormField
                             control={form.control}
                             name="dueDate"
@@ -167,12 +254,12 @@ export function EditBlogModal({ id }: { id: string }) {
                                 <Button variant="outline">Cancel</Button>
                             </DialogClose>
                             <Button type="submit">
-                                {loading ? "Saving..." : "Save"}
+                                {loading ? "Updating..." : "Save Changes"}
                             </Button>
                         </DialogFooter>
-                    </Form>
-                </DialogContent>
-            </form>
+                    </form>
+                </Form>
+            </DialogContent>
         </Dialog>
     );
 }
